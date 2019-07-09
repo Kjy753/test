@@ -41,48 +41,7 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.itemadd);
-        ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.main_map)).getMapAsync(this);
-        tos = (Button) findViewById(R.id.tos);
-        reset = (Button) findViewById(R.id.reset);
-        regist = (Button) findViewById(R.id.regist);
-
-        start_po = (TextView) findViewById(R.id.start_po);
-        end_po = (EditText) findViewById(R.id.end_po);
-        item_detail = (EditText) findViewById(R.id.item_detail);
-
-        cl = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switch (view.getId()){
-                    case R.id.tos:
-                        intent = new Intent(Itemadd.this, Clause_Add.class);
-                        startActivity(intent);
-                        finish();
-                        break;
-                    case R.id.reset:
-                        // 스피너 초기화
-                        start_po.setText("");
-                        end_po.setText("");
-                        item_detail.setText("");
-                        break;
-                    case R.id.regist:
-                        intent = new Intent(Itemadd.this,MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                        break;
-                    case R.id.start_po:
-                        intent = new Intent(Itemadd.this,Map.class);
-                        startActivity(intent);
-                        intent = getIntent();
-                        String start = intent.getStringExtra("start_po");
-                        start_po.setText(start);
-                }
-            }
-        };
-        start_po.setOnClickListener(cl);
-        tos.setOnClickListener(cl);
-        reset.setOnClickListener(cl);
-        regist.setOnClickListener(cl);
+        
     }
 
     @Override
