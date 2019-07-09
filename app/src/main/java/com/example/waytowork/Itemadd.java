@@ -29,6 +29,7 @@ import org.w3c.dom.Text;
 import java.util.List;
 
 public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
+    //LatLng latLng = new LatLng(37.448864,127.167844);
     GoogleMap map;
     Intent intent;
     Button tos,reset,regist;
@@ -88,7 +89,7 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         if(map != null){
-            LatLng latLng = new LatLng(37.448864,127.167844);
+            LatLng latLng=new LatLng(37.566643, 126.978279);
             CameraPosition position=new CameraPosition.Builder()
                     .target(latLng).zoom(16f).build();
             map.moveCamera(CameraUpdateFactory.newCameraPosition(position));
@@ -96,7 +97,9 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
             MarkerOptions markerOptions=new MarkerOptions();
             markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker));
             markerOptions.position(latLng);
-            markerOptions.title("신구대학교");
+            markerOptions.title("서울시청");
+            markerOptions.snippet("Tel:01-120");
+
             map.addMarker(markerOptions);
 
             MyGeocodingThread thread=new MyGeocodingThread(latLng);
