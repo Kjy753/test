@@ -94,6 +94,7 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
                     case R.id.start_po:
                         Toast toast = Toast.makeText(getApplicationContext(),"클릭",Toast.LENGTH_SHORT);
                         toast.show();
+
                             map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                                 @Override
                                 public void onMapClick(LatLng latLng) {
@@ -103,6 +104,8 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
                                         map.addMarker(markerOptions);
                                         Toast toast1 = Toast.makeText(getApplicationContext(), "추가", Toast.LENGTH_SHORT);
                                         toast1.show();
+                                        map.setOnMapClickListener(null);
+
                                 }
                             });
                         break;
