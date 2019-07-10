@@ -1,8 +1,12 @@
 package com.example.waytowork;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,9 +16,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -22,6 +33,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.w3c.dom.Text;
@@ -29,7 +41,14 @@ import org.w3c.dom.Text;
 import java.util.List;
 
 public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
-    //LatLng latLng = new LatLng(37.448864,127.167844);
+    GoogleApiClient googleApiClient;
+    FusedLocationProviderApi fusedLocationProviderApi;
+    Location location;
+    //Marker marker;
+    String resultAddress;
+    double resultLat;
+    double resutlLng;
+
     GoogleMap map;
     Intent intent;
     Button tos,reset,regist;
@@ -41,30 +60,73 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.itemadd);
-        
+
+        tos = (Button) findViewById(R.id.tos);
+        reset = (Button) findViewById(R.id.reset);
+        regist = (Button) findViewById(R.id.regist);
+
+        start_po = (TextView) findViewById(R.id.start_po);
+        end_po = (EditText) findViewById(R.id.end_po);
+        item_detail = (EditText) findViewById(R.id.item_detail);
+
+        ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.main_map)).getMapAsync(this);
+
+        cl = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (view.getId()){
+                    case R.id.tos:
+                        intent = new Intent(Itemadd.this, Clause_Add.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+                    case R.id.reset:
+                        // 스피너 초기화
+                        start_po.setText("");
+                        end_po.setText("");
+                        item_detail.setText("");
+                        break;
+                    case R.id.regist:
+                        intent = new Intent(Itemadd.this,MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+                    case R.id.start_po:
+                        Toast toast = Toast.makeText(getApplicationContext(),"클릭",Toast.LENGTH_SHORT);
+                        toast.show();
+                            map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                                @Override
+                                public void onMapClick(LatLng latLng) {
+                                    MarkerOptions markerOptions = new MarkerOptions();
+                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_start));
+                                    markerOptions.position(latLng);
+                                        map.addMarker(markerOptions);
+                                        Toast toast1 = Toast.makeText(getApplicationContext(), "추가", Toast.LENGTH_SHORT);
+                                        toast1.show();
+                                }
+                            });
+                        break;
+                }
+            }
+        };
+        start_po.setOnClickListener(cl);
+        tos.setOnClickListener(cl);
+        reset.setOnClickListener(cl);
+        regist.setOnClickListener(cl);
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        if(map != null){
-            LatLng latLng=new LatLng(37.566643, 126.978279);
+
+            LatLng latLng = new LatLng(37.448864,127.167844);
             CameraPosition position=new CameraPosition.Builder()
                     .target(latLng).zoom(16f).build();
             map.moveCamera(CameraUpdateFactory.newCameraPosition(position));
-
-            MarkerOptions markerOptions=new MarkerOptions();
-            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker));
-            markerOptions.position(latLng);
-            markerOptions.title("서울시청");
-            markerOptions.snippet("Tel:01-120");
-
-            map.addMarker(markerOptions);
-
             MyGeocodingThread thread=new MyGeocodingThread(latLng);
             thread.start();
 
-        }
+
     }
     class MyGeocodingThread extends Thread {
         LatLng latLng;
