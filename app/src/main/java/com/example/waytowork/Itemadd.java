@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,6 +42,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.w3c.dom.Text;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +62,8 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
     EditText item_detail;
     TextView start_po,end_po;
     View.OnClickListener cl;
+    String kat = null;
+    String a = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,9 +80,10 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
 
         ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.main_map)).getMapAsync(this);
 
-        arrayList = new ArrayList<>();
-        arrayList.add("문서");
-        arrayList.add("음식");
+         arrayList = new ArrayList<>();
+        arrayList.add("select");
+        arrayList.add("문자");
+        arrayList.add("food");
 
         arrayAdapter = new ArrayAdapter<>(getApplicationContext(),android.R.layout.simple_spinner_dropdown_item,arrayList);
         spinner = (Spinner) findViewById(R.id.spinner);
@@ -81,12 +91,15 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(getApplicationContext(),arrayList.get(i)+"가 선택되었습니다.",Toast.LENGTH_SHORT).show();
+                kat = arrayList.get(i);
+                Toast.makeText(getApplicationContext(),kat+"가 선택되었습니다.",Toast.LENGTH_SHORT).show();
+
+
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
+                Toast.makeText(getApplicationContext(),"분류를 선택해주세요.",Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -96,20 +109,31 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
             public void onClick(View view) {
                 switch (view.getId()){
                     case R.id.tos:
-                        intent = new Intent(Itemadd.this, Clause_Add.class);
+                        a = "1";
+                        /*intent = new Intent(Itemadd.this, Clause_Add.class);
                         startActivity(intent);
-                        finish();
+                        finish();*/
                         break;
                     case R.id.reset:
                         // 스피너 초기화
+                        arrayList.set(0,"select");
                         start_po.setText("");
                         end_po.setText("");
                         item_detail.setText("");
                         break;
                     case R.id.regist:
-                        intent = new Intent(Itemadd.this,MainActivity.class);
+                        String Id = "a1";// 쉐어드나 파싱으로 아이디 값 들고와야함..
+                        String Item_Kat = kat ;
+
+                        String Start_po = start_po.getText().toString();
+                        String End_po = end_po.getText().toString();
+                        String Contatint = item_detail.getText().toString();
+                        String Tos = a;
+                        insertitem(Id,Item_Kat);
+
+                        /*intent = new Intent(Itemadd.this,MainActivity.class);
                         startActivity(intent);
-                        finish();
+                        finish();*/
                         break;
                     case R.id.start_po:
                         Toast toast = Toast.makeText(getApplicationContext(),"클릭",Toast.LENGTH_SHORT);
@@ -257,10 +281,70 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
                     end_po.setText((String)msg.obj);
                     end_po.setEnabled(false);
                     break;
+                case 300:
+                    Toast to=Toast.makeText(Itemadd.this, (String)msg.obj, Toast.LENGTH_SHORT);
+                    to.show();
+                    break;
 
 
             }
         }
     };
 
+    private void insertitem(String Id, String Item_Kat) {
+        class InsertData extends AsyncTask<String, Void, String> {
+            // ProgressDialog loading;
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                //   loading = ProgressDialog.show(SignupPage.this, "Please Wait", null, true, true);
+            }
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                //loading.dismiss();
+               // Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+            }
+            @Override
+            protected String doInBackground(String... params) {
+
+                try {
+                    String Id = (String) params[0];
+                    String Item_Kat = (String) params[1];
+
+
+                    String link = "http://shingu.freehost.kr/3_project/03_member_insert.php";
+                    String data = URLEncoder.encode("member_id", "UTF-8") + "=" + URLEncoder.encode(Id, "UTF-8");
+                    data += "&" + URLEncoder.encode("item_kat", "UTF-8") + "=" + URLEncoder.encode(Item_Kat, "CP949");
+
+                    // 포인트,물품등록상태,는 아직 안넣음.
+
+                    URL url = new URL(link);
+                    URLConnection conn = url.openConnection();
+
+                    conn.setDoOutput(true);
+                    OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+
+                    wr.write(data);
+                    wr.flush();
+
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+                    StringBuilder sb = new StringBuilder();
+                    String line = null;
+
+                    // Read Server Response
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line);
+                        break;
+                    }
+                    return sb.toString();
+                } catch (Exception e) {
+                    return new String("Exception: " + e.getMessage());
+                }
+            }
+        }
+        InsertData task = new InsertData();
+        task.execute(Id,Item_Kat);
+    }
 }
