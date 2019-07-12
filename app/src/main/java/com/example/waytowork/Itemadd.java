@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -40,7 +41,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -60,7 +60,7 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
     Intent intent;
     Button tos,reset,regist;
     EditText item_detail;
-    TextView start_po,end_po;
+    TextView start_po,end_po,tv;
     View.OnClickListener cl;
     String kat = null;
     String a = null;
@@ -77,13 +77,15 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
         start_po = (TextView) findViewById(R.id.start_po);
         end_po = (TextView) findViewById(R.id.end_po);
         item_detail = (EditText) findViewById(R.id.item_detail);
+        tv= (TextView) findViewById(R.id.tv);
+
 
         ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.main_map)).getMapAsync(this);
 
          arrayList = new ArrayList<>();
-        arrayList.add("select");
+        arrayList.add("분류");
         arrayList.add("문자");
-        arrayList.add("food");
+        arrayList.add("음식");
 
         arrayAdapter = new ArrayAdapter<>(getApplicationContext(),android.R.layout.simple_spinner_dropdown_item,arrayList);
         spinner = (Spinner) findViewById(R.id.spinner);
@@ -93,8 +95,6 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 kat = arrayList.get(i);
                 Toast.makeText(getApplicationContext(),kat+"가 선택되었습니다.",Toast.LENGTH_SHORT).show();
-
-
             }
 
             @Override
@@ -116,7 +116,7 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
                         break;
                     case R.id.reset:
                         // 스피너 초기화
-                        arrayList.set(0,"select");
+                        arrayList.set(0,"분류");
                         start_po.setText("");
                         end_po.setText("");
                         item_detail.setText("");
@@ -129,9 +129,9 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
                         String End_po = end_po.getText().toString();
                         String Contatint = item_detail.getText().toString();
                         String Tos = a;
-                        insertitem(Id,Item_Kat);
+                        insertitem(Id,Item_Kat,Start_po,End_po,Contatint,Tos);
 
-                        /*intent = new Intent(Itemadd.this,MainActivity.class);
+                        /*intent = new Intent(getApplicationContext(),MainActivity.class);
                         startActivity(intent);
                         finish();*/
                         break;
@@ -189,9 +189,6 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
             CameraPosition position=new CameraPosition.Builder()
                     .target(latLng).zoom(16f).build();
             map.moveCamera(CameraUpdateFactory.newCameraPosition(position));
-
-
-
     }
 
     class MyGeocodingThread extends Thread {
@@ -221,8 +218,6 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
                     msg.what=100;
                     msg.obj=addressText;
                     handler.sendMessage(msg);
-
-
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -282,16 +277,13 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
                     end_po.setEnabled(false);
                     break;
                 case 300:
-                    Toast to=Toast.makeText(Itemadd.this, (String)msg.obj, Toast.LENGTH_SHORT);
-                    to.show();
-                    break;
-
+                   tv.setText((String)msg.obj);
 
             }
         }
     };
 
-    private void insertitem(String Id, String Item_Kat) {
+    private void insertitem(String Id, String Item_Kat, String Start_po, String End_po,String Contatint,String Tos) {
         class InsertData extends AsyncTask<String, Void, String> {
             // ProgressDialog loading;
             @Override
@@ -303,7 +295,7 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
                 //loading.dismiss();
-               // Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
             }
             @Override
             protected String doInBackground(String... params) {
@@ -311,13 +303,21 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
                 try {
                     String Id = (String) params[0];
                     String Item_Kat = (String) params[1];
+                    String Start_po = (String) params[2];
+                    String End_po = (String) params[3];
+                    String Contatint = (String) params[4];
+                    String Tos = (String) params[5];
 
-
-                    String link = "http://shingu.freehost.kr/3_project/03_member_insert.php";
+                    String link = "http://shingu.freehost.kr/3_project/22_item_insert.php";
                     String data = URLEncoder.encode("member_id", "UTF-8") + "=" + URLEncoder.encode(Id, "UTF-8");
-                    data += "&" + URLEncoder.encode("item_kat", "UTF-8") + "=" + URLEncoder.encode(Item_Kat, "CP949");
-
+                    data += "&" + URLEncoder.encode("item_kat", "UTF-8") + "=" + URLEncoder.encode(Item_Kat, "UTF-8");
+                    data += "&" + URLEncoder.encode("start_po1", "UTF-8") + "=" + URLEncoder.encode(Start_po, "UTF-8");
+                    data += "&" + URLEncoder.encode("end_po1", "UTF-8") + "=" + URLEncoder.encode(End_po, "UTF-8");
+                    data += "&" + URLEncoder.encode("contatint", "UTF-8") + "=" + URLEncoder.encode(Contatint, "UTF-8");
+                    data += "&" + URLEncoder.encode("tos", "UTF-8") + "=" + URLEncoder.encode(Tos, "UTF-8");
                     // 포인트,물품등록상태,는 아직 안넣음.
+
+
 
                     URL url = new URL(link);
                     URLConnection conn = url.openConnection();
@@ -326,6 +326,11 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
                     OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
 
                     wr.write(data);
+
+                    Message msg=new Message();
+                    msg.what=300;
+                    msg.obj=data;
+                    handler.sendMessage(msg);
                     wr.flush();
 
                     BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -345,6 +350,6 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
             }
         }
         InsertData task = new InsertData();
-        task.execute(Id,Item_Kat);
+        task.execute(Id,Item_Kat,Start_po,End_po,Contatint,Tos);
     }
 }
