@@ -107,7 +107,7 @@
                     android:background="@drawable/corners"
                     android:text="도착위치 :" />
 
-                <EditText
+                <TextView
                     android:id="@+id/end_po"
                     android:layout_width="265dp"
                     android:layout_height="60dp"

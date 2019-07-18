@@ -102,7 +102,7 @@ public class Login extends AppCompatActivity {
 
 
             if(response.contains(id.getText().toString())){
-                dialog = ProgressDialog.show(Login.this, "",
+                dialog = ProgressDialog.show(Login.this, "", // 여기 에러존재
                         "로그인 중...", true);
                 Intent in = new Intent(Login.this, MainActivity.class);
                 startActivity(in);

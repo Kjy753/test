@@ -1,8 +1,8 @@
 package com.example.waytowork;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
@@ -20,16 +20,27 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-private ArrayList<MainData> arrayList;
-private MainAdapter mainAdapter;
-private RecyclerView recyclerView;
-private LinearLayoutManager linearLayoutManager; //리사이클 뷰에서 사용하는거
-
-    
+    private ArrayList<MainData> arrayList = null;
+    private MainAdapter mainAdapter=null;
+            MainData data = null;
+    private RecyclerView recyclerView;
+    private LinearLayoutManager linearLayoutManager; //리사이클 뷰에서 사용하는거
+    private String requestUrl;
 
 
     @Override
@@ -37,15 +48,16 @@ private LinearLayoutManager linearLayoutManager; //리사이클 뷰에서 사용
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
 //팝업창 구현부
         Button b1 = (Button) findViewById(R.id.button);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    //데이터 담아서 팝업(액티비티) 호출
-                    Intent intent = new Intent(MainActivity.this, Pop.class);
-                    intent.putExtra("data", "Test Popup");
-                    startActivity(intent);
+                //데이터 담아서 팝업(액티비티) 호출
+                Intent intent = new Intent(MainActivity.this, Pop.class);
+                intent.putExtra("data", "Test Popup");
+                startActivity(intent);
             }
         });
 
@@ -73,14 +85,18 @@ private LinearLayoutManager linearLayoutManager; //리사이클 뷰에서 사용
 //리사이클러뷰 구현부
         recyclerView = (RecyclerView) findViewById(R.id.rv);
         linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager); //위에만든 매니저를 리사이클 뷰에 해줘라
 
-        arrayList = new ArrayList<>();
+        //AsyncTask
+        MyAsyncTask myAsyncTask = new MyAsyncTask();
+        myAsyncTask.execute();
+        /*arrayList = new ArrayList<>();
         mainAdapter = new MainAdapter(arrayList); // MainAdapter에서 가져와서 arrylist값을 넣어준것
         recyclerView.setAdapter(mainAdapter);//mainAdapter에 담겨져있는걸 recyclerView에가  다시 담는다
-
+        */
 //검색기능 구현부
-        EditText e1;
+       /* EditText e1;
         e1 = (EditText) findViewById(R.id.editText);
         e1.addTextChangedListener(new TextWatcher() {
             @Override
@@ -97,38 +113,25 @@ private LinearLayoutManager linearLayoutManager; //리사이클 뷰에서 사용
             public void afterTextChanged(Editable s) {
                 filter(s.toString());
             }
-        });
+        });*/
 
-        Button btn_add = (Button) findViewById(R.id.btn_add);
-        btn_add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainData mainData = new MainData(R.mipmap.ic_launcher,"aa","recyclerView");
-                MainData mainData2 = new MainData(R.mipmap.ic_launcher,"bb","recyclerView");
-                MainData mainData3 = new MainData(R.mipmap.ic_launcher,"cc","recyclerView");
-                MainData mainData4 = new MainData(R.mipmap.ic_launcher,"dd","recyclerView");
-                arrayList.add(mainData);
-                arrayList.add(mainData2);
-                arrayList.add(mainData3);
-                arrayList.add(mainData4);
-                mainAdapter.notifyDataSetChanged();//추가 삭제 등등 행동을 하면 꼭 노티파이를써서 새로고침!
-            }
-            });
+
 
     }
 
-//검색기능 구현부
-    private void filter(String text) {
+    //검색기능 구현부 내용을 우선 검색하게..해놓음.
+    /*private void filter(String text) {
         ArrayList<MainData> filteredList = new ArrayList<>();
 
         for (MainData item : arrayList) {
-            if (item.getTv_name().toLowerCase().contains(text.toLowerCase())) {
+            if (item.getTv_start_po().toLowerCase().contains(text.toLowerCase())) {
                 filteredList.add(item);
             }
         }
 
         mainAdapter.filterList(filteredList);
-    }
+
+    }*/
 
 
     //메인엑티비티에 드로우 레이아웃을 펼치고 접고를 처리하는곳
@@ -168,7 +171,7 @@ private LinearLayoutManager linearLayoutManager; //리사이클 뷰에서 사용
 //    }
 
 
-//스와이프화면 메뉴들
+    //스와이프화면 메뉴들
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -177,7 +180,7 @@ private LinearLayoutManager linearLayoutManager; //리사이클 뷰에서 사용
         Intent i;
         if (id == R.id.profile) {
             //i = new Intent(getApplicationContext(), Profile.class);
-           // startActivity(i);
+            // startActivity(i);
         } else if (id == R.id.itemadd) {
             i = new Intent(MainActivity.this,Itemadd.class);
             startActivity(i);
@@ -199,6 +202,81 @@ private LinearLayoutManager linearLayoutManager; //리사이클 뷰에서 사용
         return true;
     }
 
+    public class MyAsyncTask extends AsyncTask<String,Void,String>{
+
+        @Override
+        protected String doInBackground(String... strings) {
+            requestUrl = "http://shingu.freehost.kr/3_project/07_main.php";
+            try{
+                Boolean b_item_kat = false;
+                Boolean b_start_po = false;
+                Boolean b_end_po = false;
+                Boolean b_content = false;
+
+                URL url = new URL(requestUrl);
+                InputStream is = url.openStream();
+                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+                XmlPullParser parser = factory.newPullParser();
+                parser.setInput(new InputStreamReader(is,"UTF-8"));
+
+                String tag;
+                int eventType = parser.getEventType();
+
+                while(eventType != XmlPullParser.END_DOCUMENT){
+                    switch (eventType){
+                        case XmlPullParser.START_DOCUMENT:
+                            arrayList = new ArrayList<MainData>();
+                            break;
+
+                        case XmlPullParser.END_DOCUMENT:
+                            break;
+                        case XmlPullParser.END_TAG:
+                            if(parser.getName().equals("item")&& data != null){ //반복 태그 item
+                                arrayList.add(data);
+                            }
+                            break;
+                        case XmlPullParser.START_TAG:
+                            if(parser.getName().equals("item")){
+                                data = new MainData();
+                            }
+                            if(parser.getName().equals("item_kat")) b_item_kat = true;
+                            if(parser.getName().equals("start_po")) b_start_po = true;
+                            if(parser.getName().equals("end_po")) b_end_po = true;
+                            if(parser.getName().equals("content")) b_content = true;
+                            break;
+                        case XmlPullParser.TEXT:
+                            if(b_item_kat){
+                                data.setIv_item_kat(parser.getText());
+                                b_item_kat = false;
+                            } else if(b_start_po){
+                                data.setTv_start_po(parser.getText());
+                                b_start_po = false;
+                            } else if(b_end_po) {
+                                data.setTv_end_po(parser.getText());
+                                b_end_po = false;
+                            } else if (b_content) {
+                                data.setTv_content(parser.getText());
+                                b_content = false;
+                            }
+                            break;
+                    }
+                    eventType = parser.next();
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            return  null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            //어댑터 연결
+            MainAdapter adapter = new MainAdapter(getApplicationContext(),arrayList);
+            recyclerView.setAdapter(adapter);
+        }
+    }
 }
 
 

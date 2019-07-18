@@ -37,19 +37,25 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.CustomViewHold
     @Override
     public void onBindViewHolder(@NonNull final MainAdapter.CustomViewHolder holder, int position) {
     //실제 추가될때의 생명주기
-        //holder.iv_pofile.setImageResource(arrayList.get(position).getIv_profile());
-        holder.tv_start.setText(arrayList.get(position).tv_start_po);
-        holder.tv_end.setText(arrayList.get(position).tv_end_po);
-        holder.tv_context.setText(arrayList.get(position).tv_content);
 
-        holder.itemView.setTag(position);
+        holder.tv_start.setText(arrayList.get(position).getTv_start_po());
+        holder.tv_end.setText(arrayList.get(position).getTv_end_po());
+        holder.tv_content.setText(arrayList.get(position).getTv_content());
+        if(arrayList.get(position).getIv_item_kat().equals("문서")) {
+            holder.iv_kat.setImageResource(R.drawable.ic_marker); // 사진바꿔야함
+        }else if(arrayList.get(position).getIv_item_kat().equals("음식")) {
+            holder.iv_kat.setImageResource(R.drawable.ic_start); // 사진바꿔야함
+        }
+
+       /* holder.itemView.setTag(position);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //누르면 팝업이 나와서 보여줘야 함..
                 String curName= holder.tv_context.getText().toString();//현재내용?
                 Toast.makeText(v.getContext(), curName, Toast.LENGTH_LONG).show();
             }
-        });
+        });*/
 
 //롱클릭했을때 삭제
 //        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -86,17 +92,17 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.CustomViewHold
 
     public class CustomViewHolder extends RecyclerView.ViewHolder {
 
-       // protected ImageView iv_pofile;
-        protected TextView tv_start;
-        protected TextView tv_end;
-        protected TextView tv_context;
+        public ImageView iv_kat;
+        public TextView tv_start;
+        public TextView tv_end;
+        public TextView tv_content;
 
         public CustomViewHolder(@NonNull View itemView) {
             super(itemView);
-           // this.iv_pofile = (ImageView) itemView.findViewById(R.id.iv_profile);//find뷰랑 비슷함쓰는이유는 액티비티 형태의 클래스가 아니가 떄문에
+            this.iv_kat = (ImageView) itemView.findViewById(R.id.iv_kat);//find뷰랑 비슷함쓰는이유는 액티비티 형태의 클래스가 아니가 떄문에
             this.tv_start = (TextView) itemView.findViewById(R.id.tv_start);
             this.tv_end = (TextView) itemView.findViewById(R.id.tv_end);
-            this.tv_context = (TextView) itemView.findViewById(R.id.tv_content);
+            this.tv_content = (TextView) itemView.findViewById(R.id.tv_content);
         }
     }
 }

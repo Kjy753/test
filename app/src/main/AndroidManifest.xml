@@ -54,7 +54,9 @@
         <activity android:name=".JoinUser"></activity>
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".Itemadd"></activity>
+        <activity android:name=".Clause_Add"></activity>
         <activity android:name=".Map"></activity>
+        <activity android:name=".Pop"/>
 
     </application>
 
