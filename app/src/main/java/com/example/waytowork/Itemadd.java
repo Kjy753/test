@@ -49,7 +49,15 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
     TextView start_po,end_po;
     View.OnClickListener cl;
     String kat = null;
-    String a = null;
+    String getTos = null;
+
+    String Id ;
+    String Item_Kat ;
+    String  Start_po ;
+    String  End_po ;
+    String content;
+    String Tos ;
+    String Regdt ;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -96,7 +104,7 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
                 switch (view.getId()){
                     case R.id.tos:
                         intent = new Intent(Itemadd.this, Clause_Add.class);
-                        startActivity(intent);
+                        startActivityForResult(intent,1);
 
                         break;
                     case R.id.reset:
@@ -107,14 +115,14 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
                         item_detail.setText("");
                         break;
                     case R.id.regist:
-                        String Id = "a1";// 쉐어드나 파싱으로 아이디 값 들고와야함..
-                        String Item_Kat = kat ;
+                         Id = "a1";// 쉐어드나 파싱으로 아이디 값 들고와야함..
+                         Item_Kat = kat ;
 
-                        String Start_po = start_po.getText().toString();
-                        String End_po = end_po.getText().toString();
-                        String content = item_detail.getText().toString();
-                        String Tos = a;
-                        String Regdt = "";
+                         Start_po = start_po.getText().toString();
+                         End_po = end_po.getText().toString();
+                         content = item_detail.getText().toString();
+                         Tos =getTos;
+                         Regdt = "";
                         insertitem(Id,Item_Kat,Start_po,End_po,content,Tos,Regdt);
 
                         Intent intent = new Intent(getApplicationContext(),MainActivity.class);
@@ -167,6 +175,17 @@ public class Itemadd extends AppCompatActivity implements OnMapReadyCallback {
         regist.setOnClickListener(cl);
 
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == 1){
+            if(resultCode==RESULT_OK){
+                //데이터 받기
+                String result = data.getStringExtra("Tos");
+                getTos = result;
+            }
+        }
     }
 
     @Override

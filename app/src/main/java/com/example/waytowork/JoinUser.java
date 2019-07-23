@@ -30,6 +30,7 @@ public class JoinUser extends AppCompatActivity {
     private EditText editTextId,editTextPw,checkPw,editTextName,editTextEmail;
     Button join ,id_check,tos,reset;
     View.OnClickListener cl;
+    String Id;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,7 +52,7 @@ public class JoinUser extends AppCompatActivity {
             public void onClick(View view) {
                 switch (view.getId()){
                     case R.id.join:
-                        String Id = editTextId.getText().toString();
+                         Id = editTextId.getText().toString();
                         String Pw = editTextPw.getText().toString();
                         String Chpw = checkPw.getText().toString();
                         String Name = editTextName.getText().toString();
@@ -68,11 +69,12 @@ public class JoinUser extends AppCompatActivity {
                         break;
                     case R.id.id_check:
                         //리턴 셀렉트 할만한거
+                        CheckId(Id);
+
                         break;
                     case R.id.tos:
-                            /*Intent intent = new Intent(getApplicationContext(),Login.class);
-                            startActivity(intent);
-                            finish();*/
+                        Intent intent = new Intent(JoinUser.this, Tos.class);
+                        startActivityForResult(intent,1);
                         break;
                     case R.id.reset:
                         editTextId.setText("");
@@ -91,6 +93,59 @@ public class JoinUser extends AppCompatActivity {
         reset.setOnClickListener(cl);
     }
 
+
+    private void CheckId(String Id ) {
+        class CheckData extends AsyncTask<String, Void, String> {
+            // ProgressDialog loading;
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                //   loading = ProgressDialog.show(SignupPage.this, "Please Wait", null, true, true);
+            }
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                //loading.dismiss();
+                //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+            }
+            @Override
+            protected String doInBackground(String... params) {
+
+                try {
+                    String Id = (String) params[0];
+
+
+                    String link = "http://shingu.freehost.kr/3_project/Select_id.php";
+                    String data =  URLEncoder.encode(Id, "UTF-8");
+
+                    URL url = new URL(link);
+                    URLConnection conn = url.openConnection();
+
+                    conn.setDoOutput(true);
+                    OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+
+                    wr.write(data);
+                    wr.flush();
+
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+                    StringBuilder sb = new StringBuilder();
+                    String line = null;
+
+                    // Read Server Response
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line);
+                        break;
+                    }
+                    return sb.toString();
+                } catch (Exception e) {
+                    return new String("Exception: " + e.getMessage());
+                }
+            }
+        }
+        CheckData task = new CheckData();
+        task.execute(Id);
+    }
 
     private void insertoToDatabase(String Id, String Pw, String Name, String Email ) {
         class InsertData extends AsyncTask<String, Void, String> {

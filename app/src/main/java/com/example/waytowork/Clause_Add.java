@@ -15,6 +15,13 @@ public class Clause_Add extends AppCompatActivity {
     CheckBox option1, option2;
     Button check;
     View.OnClickListener cl;
+
+    @Override
+    public void onBackPressed() {
+        //안드로이드 백버튼 막기
+        return;
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,9 +34,13 @@ public class Clause_Add extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(option1.isChecked()){
+                    //데이터 전달
                     Intent intent = new Intent(getApplicationContext(),Itemadd.class);
-                    intent.putExtra("tos","1");
-                    startActivity(intent);
+                    intent.putExtra("Tos","1");
+                    setResult(RESULT_OK,intent);
+                    //엑티비티 닫기
+                    finish();
+
 
                 }else{
                     Toast toast = Toast.makeText(getApplicationContext(),"동의가 필요합니다",Toast.LENGTH_SHORT);
@@ -38,6 +49,7 @@ public class Clause_Add extends AppCompatActivity {
             }
         };
         check.setOnClickListener(cl);
+
 
 
     }

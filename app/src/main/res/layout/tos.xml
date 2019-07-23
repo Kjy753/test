@@ -13,7 +13,7 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/imageButton"
+            android:id="@+id/ib_Back"
             android:layout_width="84dp"
             android:layout_height="70dp"
             android:layout_marginLeft="10dp"
@@ -41,6 +41,7 @@
         android:layout_marginTop="10dp">
 
         <CheckBox
+            android:id="@+id/ch_First"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginLeft="30dp"/>
@@ -83,7 +84,7 @@
         android:orientation="vertical"
         >
         <EditText
-            android:id="@+id/item_detail"
+            android:id="@+id/ed_First"
             android:layout_width="330dp"
             android:layout_height="70dp"
             android:layout_marginTop="0dp"
@@ -104,6 +105,7 @@
         android:layout_marginTop="15dp">
 
         <CheckBox
+            android:id="@+id/ch_Second"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginLeft="30dp"/>
@@ -127,7 +129,7 @@
         android:orientation="vertical"
         >
         <EditText
-            android:id="@+id/editText6"
+            android:id="@+id/ed_Second"
             android:layout_width="330dp"
             android:layout_height="70dp"
             android:layout_marginTop="0dp"
@@ -148,6 +150,7 @@
         android:layout_marginTop="15dp">
 
         <CheckBox
+            android:id="@+id/ch_Third"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginLeft="30dp"/>
@@ -171,7 +174,7 @@
         android:orientation="vertical"
         >
         <EditText
-            android:id="@+id/editText7"
+            android:id="@+id/ed_Third"
             android:layout_width="330dp"
             android:layout_height="70dp"
             android:layout_marginTop="0dp"
@@ -188,7 +191,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/button5"
+        android:id="@+id/bt_Ok"
         android:layout_width="349dp"
         android:layout_height="60dp"
         android:layout_gravity="center"
@@ -198,12 +201,13 @@
         android:text="확인" />
 
     <Button
+        android:id="@+id/bt_Cancel"
         android:layout_width="349dp"
         android:layout_height="60dp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:textColor="#ffffff"
         android:background="@drawable/corners_or"
-        android:text="확인" />
+        android:text="취소" />
 
 </LinearLayout>
